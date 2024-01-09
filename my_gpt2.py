@@ -108,10 +108,15 @@ def mha(x, c_attn, c_proj, n_head): # [n_seq, n_embd] -> [n_seq, n_embd]
 def generate(inputs, params, n_head, n_tokens_to_generate):
     from tqdm import tqdm
 
+    import time
+    start = time.time()
     for _ in tqdm(range(n_tokens_to_generate), "generating"):  # auto-regressive decode loop
         logits = gpt2(inputs, **params, n_head=n_head)  # model forward pass
         next_id = np.argmax(logits[-1])  # greedy sampling
         inputs.append(int(next_id))  # append prediction to input
+    end = time.time()
+    delta = end - start
+    print("tokens per seconds: ", n_tokens_to_generate/delta)
 
     return inputs[len(inputs) - n_tokens_to_generate :]  # only return generated ids
 
